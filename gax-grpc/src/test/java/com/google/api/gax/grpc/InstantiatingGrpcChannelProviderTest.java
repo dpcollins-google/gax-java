@@ -37,8 +37,8 @@ import com.google.api.core.ApiFunction;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider.Builder;
 import com.google.api.gax.rpc.HeaderProvider;
 import com.google.api.gax.rpc.TransportChannelProvider;
+import com.google.api.gax.rpc.mtls.AbstractMtlsTransportChannelTest;
 import com.google.api.gax.rpc.mtls.MtlsProvider;
-import com.google.api.gax.rpc.mtls.MtlsTransportChannelBaseTest;
 import com.google.auth.oauth2.CloudShellCredentials;
 import com.google.auth.oauth2.ComputeEngineCredentials;
 import io.grpc.ManagedChannel;
@@ -57,7 +57,7 @@ import org.mockito.Mockito;
 import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
-public class InstantiatingGrpcChannelProviderTest extends MtlsTransportChannelBaseTest {
+public class InstantiatingGrpcChannelProviderTest extends AbstractMtlsTransportChannelTest {
 
   @Test
   public void testEndpoint() {

@@ -41,7 +41,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import org.junit.Test;
 
-public abstract class MtlsTransportChannelBaseTest {
+public abstract class AbstractMtlsTransportChannelTest {
   /**
    * Returns the mTLS object from the created transport channel. For HttpJsonTransportChannel, the
    * mTLS object is the SslContext; for GrpcTransportChannel, the mTLS object is the HttpTransport.

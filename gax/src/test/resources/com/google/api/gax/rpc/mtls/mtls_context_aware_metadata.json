@@ -1,7 +1,7 @@
 {
   "cert_provider_command": [
-    "cat",
-    "src/test/resources/com/google/api/gax/rpc/mtls/mtlsCertAndKey.pem"
+    "some_binary",
+    "some_argument"
   ],
   "device_resource_ids": [
     "123"

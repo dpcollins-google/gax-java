@@ -34,8 +34,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.api.gax.rpc.HeaderProvider;
 import com.google.api.gax.rpc.TransportChannelProvider;
+import com.google.api.gax.rpc.mtls.AbstractMtlsTransportChannelTest;
 import com.google.api.gax.rpc.mtls.MtlsProvider;
-import com.google.api.gax.rpc.mtls.MtlsTransportChannelBaseTest;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.Executor;
@@ -47,7 +47,7 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
-public class InstantiatingHttpJsonChannelProviderTest extends MtlsTransportChannelBaseTest {
+public class InstantiatingHttpJsonChannelProviderTest extends AbstractMtlsTransportChannelTest {
 
   @Test
   public void basicTest() throws IOException {

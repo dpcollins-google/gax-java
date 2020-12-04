@@ -32,7 +32,6 @@ package com.google.api.gax.rpc.mtls;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -143,37 +142,10 @@ public class MtlsProviderTest {
   }
 
   @Test
-  public void testGetKeyStore() throws InterruptedException, GeneralSecurityException, IOException {
+  public void testGetKeyStore() throws IOException, GeneralSecurityException {
     MtlsProvider mtlsProvider =
-        new MtlsProvider(
-            new TestEnvironmentProvider("false", "auto"),
-            "src/test/resources/com/google/api/gax/rpc/mtls/mtls_context_aware_metadata.json");
-    assertNotNull(mtlsProvider.getKeyStore());
-  }
-
-  @Test
-  public void testGetKeyStoreGoodCertificate()
-      throws InterruptedException, GeneralSecurityException, IOException {
-    MtlsProvider mtlsProvider =
-        new MtlsProvider(new TestEnvironmentProvider("false", "auto"), "/path/to/missing/file");
+        new MtlsProvider(new TestEnvironmentProvider("false", "always"), "/path/to/missing/file");
     assertNull(mtlsProvider.getKeyStore());
-  }
-
-  @Test
-  public void testGetKeyStoreBadCertificate()
-      throws InterruptedException, GeneralSecurityException, IOException {
-    MtlsProvider mtlsProvider =
-        new MtlsProvider(
-            new TestEnvironmentProvider("false", "auto"),
-            "src/test/resources/com/google/api/gax/rpc/mtls/mtls_context_aware_metadata_bad_command.json");
-    try {
-      mtlsProvider.getKeyStore();
-      fail("should throw an exception");
-    } catch (IllegalArgumentException e) {
-      assertTrue(
-          "expected to fail with certificate is missing",
-          e.getMessage().contains("certificate is missing"));
-    }
   }
 
   @Test
@@ -184,9 +156,8 @@ public class MtlsProviderTest {
             .getResourceAsStream("com/google/api/gax/rpc/mtls/mtls_context_aware_metadata.json");
     List<String> command = MtlsProvider.extractCertificateProviderCommand(inputStream);
     assertEquals(2, command.size());
-    assertEquals("cat", command.get(0));
-    assertEquals(
-        "src/test/resources/com/google/api/gax/rpc/mtls/mtlsCertAndKey.pem", command.get(1));
+    assertEquals("some_binary", command.get(0));
+    assertEquals("some_argument", command.get(1));
   }
 
   @Test
