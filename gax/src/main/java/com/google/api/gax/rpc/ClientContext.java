@@ -188,14 +188,14 @@ public abstract class ClientContext {
     if (transportChannelProvider.needsCredentials() && credentials != null) {
       transportChannelProvider = transportChannelProvider.withCredentials(credentials);
     }
+    String endpoint =
+        getEndpoint(
+            settings.getEndpoint(),
+            settings.getMtlsEndpoint(),
+            settings.getEndpointOverridable(),
+            new MtlsProvider());
     if (transportChannelProvider.needsEndpoint()) {
-      transportChannelProvider =
-          transportChannelProvider.withEndpoint(
-              getEndpoint(
-                  settings.getEndpoint(),
-                  settings.getMtlsEndpoint(),
-                  settings.getEndpointOverridable(),
-                  new MtlsProvider()));
+      transportChannelProvider = transportChannelProvider.withEndpoint(endpoint);
     }
     TransportChannel transportChannel = transportChannelProvider.getTransportChannel();
 
