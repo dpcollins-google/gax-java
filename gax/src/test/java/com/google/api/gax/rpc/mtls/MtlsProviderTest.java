@@ -39,7 +39,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.GeneralSecurityException;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -106,46 +105,93 @@ public class MtlsProviderTest {
     public void destroy() {}
   }
 
+  static class TestProcessProvider implements MtlsProvider.ProcessProvider {
+    private int exitCode;
+
+    public TestProcessProvider(int exitCode) {
+      this.exitCode = exitCode;
+    }
+
+    @Override
+    public Process createProcess(InputStream metadata) throws IOException {
+      return new TestCertProviderCommandProcess(exitCode, false);
+    }
+  }
+
   @Test
   public void testUseMtlsEndpointAlways() {
     MtlsProvider mtlsProvider =
-        new MtlsProvider(new TestEnvironmentProvider("false", "always"), "/path/to/missing/file");
+        new MtlsProvider(
+            new TestEnvironmentProvider("false", "always"),
+            new TestProcessProvider(0),
+            "/path/to/missing/file");
     assertEquals(MtlsProvider.UseMtlsEndpoint.ALWAYS, mtlsProvider.useMtlsEndpoint());
   }
 
   @Test
   public void testUseMtlsEndpointAuto() {
     MtlsProvider mtlsProvider =
-        new MtlsProvider(new TestEnvironmentProvider("false", "auto"), "/path/to/missing/file");
+        new MtlsProvider(
+            new TestEnvironmentProvider("false", "auto"),
+            new TestProcessProvider(0),
+            "/path/to/missing/file");
     assertEquals(MtlsProvider.UseMtlsEndpoint.AUTO, mtlsProvider.useMtlsEndpoint());
   }
 
   @Test
   public void testUseMtlsEndpointNever() {
     MtlsProvider mtlsProvider =
-        new MtlsProvider(new TestEnvironmentProvider("false", "never"), "/path/to/missing/file");
+        new MtlsProvider(
+            new TestEnvironmentProvider("false", "never"),
+            new TestProcessProvider(0),
+            "/path/to/missing/file");
     assertEquals(MtlsProvider.UseMtlsEndpoint.NEVER, mtlsProvider.useMtlsEndpoint());
   }
 
   @Test
   public void testUseMtlsClientCertificateTrue() {
     MtlsProvider mtlsProvider =
-        new MtlsProvider(new TestEnvironmentProvider("true", "auto"), "/path/to/missing/file");
+        new MtlsProvider(
+            new TestEnvironmentProvider("true", "auto"),
+            new TestProcessProvider(0),
+            "/path/to/missing/file");
     assertTrue(mtlsProvider.useMtlsClientCertificate());
   }
 
   @Test
   public void testUseMtlsClientCertificateFalse() {
     MtlsProvider mtlsProvider =
-        new MtlsProvider(new TestEnvironmentProvider("false", "auto"), "/path/to/missing/file");
+        new MtlsProvider(
+            new TestEnvironmentProvider("false", "auto"),
+            new TestProcessProvider(0),
+            "/path/to/missing/file");
     assertFalse(mtlsProvider.useMtlsClientCertificate());
   }
 
   @Test
-  public void testGetKeyStore() throws IOException, GeneralSecurityException {
+  public void testGetKeyStore() throws IOException {
     MtlsProvider mtlsProvider =
-        new MtlsProvider(new TestEnvironmentProvider("false", "always"), "/path/to/missing/file");
+        new MtlsProvider(
+            new TestEnvironmentProvider("false", "always"),
+            new TestProcessProvider(0),
+            "/path/to/missing/file");
     assertNull(mtlsProvider.getKeyStore());
+  }
+
+  @Test
+  public void testGetKeyStoreNonZeroExitCode() throws IOException {
+    try {
+      InputStream metadata =
+          this.getClass()
+              .getClassLoader()
+              .getResourceAsStream("com/google/api/gax/rpc/mtls/mtlsCertAndKey.pem");
+      MtlsProvider.getKeyStore(metadata, new TestProcessProvider(1));
+      fail("should throw an exception");
+    } catch (IOException e) {
+      assertTrue(
+          "expected to fail with nonzero exit code",
+          e.getMessage().contains("Cert provider command failed with exit code: 1"));
+    }
   }
 
   @Test

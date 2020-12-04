@@ -45,7 +45,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -145,12 +144,8 @@ public abstract class ClientContext {
         case NEVER:
           return endpoint;
         default:
-          try {
-            if (mtlsProvider.useMtlsClientCertificate() && mtlsProvider.getKeyStore() != null) {
-              return mtlsEndpoint;
-            }
-          } catch (GeneralSecurityException e) {
-            throw new IOException(e.toString());
+          if (mtlsProvider.useMtlsClientCertificate() && mtlsProvider.getKeyStore() != null) {
+            return mtlsEndpoint;
           }
       }
     }

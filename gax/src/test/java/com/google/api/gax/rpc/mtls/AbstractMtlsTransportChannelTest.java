@@ -38,7 +38,6 @@ import static org.junit.Assert.fail;
 import com.google.api.gax.rpc.mtls.MtlsProvider.UseMtlsEndpoint;
 import com.google.api.gax.rpc.testing.FakeMtlsProvider;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import org.junit.Test;
 
 public abstract class AbstractMtlsTransportChannelTest {
@@ -57,7 +56,7 @@ public abstract class AbstractMtlsTransportChannelTest {
   }
 
   @Test
-  public void testUseClientCertificate() throws IOException, GeneralSecurityException {
+  public void testUseClientCertificate() throws IOException {
     MtlsProvider provider =
         new FakeMtlsProvider(
             true, UseMtlsEndpoint.AUTO, FakeMtlsProvider.createTestMtlsKeyStore(), "", false);

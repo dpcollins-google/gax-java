@@ -60,11 +60,27 @@ public class MtlsProvider {
     }
   }
 
+  interface ProcessProvider {
+    public Process createProcess(InputStream metadata) throws IOException;
+  }
+
+  static class DefaultProcessProvider implements ProcessProvider {
+    @Override
+    public Process createProcess(InputStream metadata) throws IOException {
+      if (metadata == null) {
+        return null;
+      }
+      List<String> command = extractCertificateProviderCommand(metadata);
+      return new ProcessBuilder(command).start();
+    }
+  }
+
   private static final String DEFAULT_CONTEXT_AWARE_METADATA_PATH =
       System.getProperty("user.home") + "/.secureConnect/context_aware_metadata.json";
 
   private String metadataPath;
   private EnvironmentProvider envProvider;
+  private ProcessProvider processProvider;
 
   public enum UseMtlsEndpoint {
     NEVER,
@@ -73,13 +89,18 @@ public class MtlsProvider {
   }
 
   @VisibleForTesting
-  MtlsProvider(EnvironmentProvider envProvider, String metadataPath) {
+  MtlsProvider(
+      EnvironmentProvider envProvider, ProcessProvider processProvider, String metadataPath) {
     this.envProvider = envProvider;
+    this.processProvider = processProvider;
     this.metadataPath = metadataPath;
   }
 
   public MtlsProvider() {
-    this(new SystemEnvironmentProvider(), DEFAULT_CONTEXT_AWARE_METADATA_PATH);
+    this(
+        new SystemEnvironmentProvider(),
+        new DefaultProcessProvider(),
+        DEFAULT_CONTEXT_AWARE_METADATA_PATH);
   }
 
   /**
@@ -107,13 +128,22 @@ public class MtlsProvider {
   }
 
   /** The mutual TLS key store created with the default client certificate on device. */
-  public KeyStore getKeyStore() throws IOException, GeneralSecurityException {
+  public KeyStore getKeyStore() throws IOException {
     try (InputStream stream = new FileInputStream(metadataPath)) {
-      // Load the cert provider command from the json file.
-      List<String> command = extractCertificateProviderCommand(stream);
+      return getKeyStore(stream, processProvider);
+    } catch (FileNotFoundException ignored) {
+      // file doesn't exist
+      return null;
+    }
+  }
+
+  @VisibleForTesting
+  static KeyStore getKeyStore(InputStream metadata, ProcessProvider processProvider)
+      throws IOException {
+    try {
+      Process process = processProvider.createProcess(metadata);
 
       // Run the command and timeout after 1000 milliseconds.
-      Process process = new ProcessBuilder(command).start();
       int exitCode = runCertificateProviderCommand(process, 1000);
       if (exitCode != 0) {
         throw new IOException("Cert provider command failed with exit code: " + exitCode);
@@ -121,11 +151,10 @@ public class MtlsProvider {
 
       // Create mTLS key store with the input certificates from shell command.
       return SecurityUtils.createMtlsKeyStore(process.getInputStream());
-    } catch (FileNotFoundException ignored) {
-      // file doesn't exist
-      return null;
     } catch (InterruptedException e) {
       throw new IOException("Interrupted executing certificate provider command", e);
+    } catch (GeneralSecurityException e) {
+      throw new IOException("Failed to get key store", e);
     }
   }
 

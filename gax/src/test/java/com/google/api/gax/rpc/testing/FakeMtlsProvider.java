@@ -69,18 +69,22 @@ public class FakeMtlsProvider extends MtlsProvider {
   }
 
   @Override
-  public KeyStore getKeyStore() throws IOException, GeneralSecurityException {
+  public KeyStore getKeyStore() throws IOException {
     if (throwExceptionForGetKeyStore) {
       throw new IOException("getKeyStore throws exception");
     }
     return keyStore;
   }
 
-  public static KeyStore createTestMtlsKeyStore() throws IOException, GeneralSecurityException {
-    InputStream certAndKey =
-        FakeMtlsProvider.class
-            .getClassLoader()
-            .getResourceAsStream("com/google/api/gax/rpc/mtls/mtlsCertAndKey.pem");
-    return SecurityUtils.createMtlsKeyStore(certAndKey);
+  public static KeyStore createTestMtlsKeyStore() throws IOException {
+    try {
+      InputStream certAndKey =
+          FakeMtlsProvider.class
+              .getClassLoader()
+              .getResourceAsStream("com/google/api/gax/rpc/mtls/mtlsCertAndKey.pem");
+      return SecurityUtils.createMtlsKeyStore(certAndKey);
+    } catch (GeneralSecurityException e) {
+      throw new IOException("Failed to create key store", e);
+    }
   }
 }

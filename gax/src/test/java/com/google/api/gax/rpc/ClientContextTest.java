@@ -53,7 +53,6 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.truth.Truth;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -612,7 +611,7 @@ public class ClientContextTest {
   private static String mtlsEndpoint = "https://foo.mtls.googleapis.com";
 
   @Test
-  public void testAutoUseMtlsEndpoint() throws IOException, GeneralSecurityException {
+  public void testAutoUseMtlsEndpoint() throws IOException {
     // Test the case client certificate exists and mTLS endpoint is selected.
     boolean endpointOverridable = true;
     MtlsProvider provider =
@@ -624,7 +623,7 @@ public class ClientContextTest {
   }
 
   @Test
-  public void testEndpointNotOverridable() throws IOException, GeneralSecurityException {
+  public void testEndpointNotOverridable() throws IOException {
     // Test the case that endpoint is not overridable so the original endpoint is selected.
     boolean endpointOverridable = false;
     MtlsProvider provider =
@@ -636,7 +635,7 @@ public class ClientContextTest {
   }
 
   @Test
-  public void testNoClientCertificate() throws IOException, GeneralSecurityException {
+  public void testNoClientCertificate() throws IOException {
     // Test the case that client certificates doesn't exists so the original endpoint is selected.
     boolean endpointOverridable = true;
     MtlsProvider provider = new FakeMtlsProvider(true, UseMtlsEndpoint.AUTO, null, "", false);
@@ -646,7 +645,7 @@ public class ClientContextTest {
   }
 
   @Test
-  public void testAlwaysUseMtlsEndpoint() throws IOException, GeneralSecurityException {
+  public void testAlwaysUseMtlsEndpoint() throws IOException {
     // Test the case that mTLS endpoint is always used.
     boolean endpointOverridable = true;
     MtlsProvider provider = new FakeMtlsProvider(false, UseMtlsEndpoint.ALWAYS, null, "", false);
@@ -656,7 +655,7 @@ public class ClientContextTest {
   }
 
   @Test
-  public void testNeverUseMtlsEndpoint() throws IOException, GeneralSecurityException {
+  public void testNeverUseMtlsEndpoint() throws IOException {
     // Test the case that mTLS endpoint is never used.
     boolean endpointOverridable = true;
     MtlsProvider provider =
@@ -668,7 +667,7 @@ public class ClientContextTest {
   }
 
   @Test
-  public void testGetKeyStoreThrows() throws IOException, GeneralSecurityException {
+  public void testGetKeyStoreThrows() throws IOException {
     // Test the case that getKeyStore throws exceptions.
     try {
       boolean endpointOverridable = true;
