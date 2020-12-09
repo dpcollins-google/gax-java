@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.60.2](https://www.github.com/googleapis/gax-java/compare/v1.60.1...v1.60.2) (2020-12-09)
+
+
+### Dependencies
+
+* update common protos ([#1258](https://www.github.com/googleapis/gax-java/issues/1258)) ([7287e84](https://www.github.com/googleapis/gax-java/commit/7287e84979ba9076e4888ec3678995c08f1ea690))
+
 ### [1.60.1](https://www.github.com/googleapis/gax-java/compare/v1.60.0...v1.60.1) (2020-11-19)
 
 
